@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="res_partner_inherite_view_form_rex" model="ir.ui.view">
+    <field name="name">res.partner.inherite.rex</field>
+    <field name="model">res.partner</field>
+    <field name="type">form</field>
+    <field name="inherit_id" ref="base.view_partner_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='name']" position="attributes">
+        <attribute name="required">1</attribute>
+      </xpath>
+      <xpath expr="//field[@name='phone']" position="attributes">
+        <attribute name="required">1</attribute>
+      </xpath>
+      <xpath expr="//field[@name='street']" position="attributes">
+        <attribute name="required">1</attribute>
+      </xpath>
+      <xpath expr="//field[@name='city']" position="attributes">
+        <attribute name="required">1</attribute>
+      </xpath>
+      <!-- <xpath expr="//field[@name='state_id']" position="attributes">
+        <attribute name="invisible">1</attribute>
+      </xpath> -->
+      <xpath expr="//field[@name='zip']" position="attributes">
+        <attribute name="required">1</attribute>
+      </xpath>
+      <xpath expr="//field[@name='country_id']" position="attributes">
+        <attribute name="required">1</attribute>
+      </xpath>
+      <xpath expr="//span[@name='address_name']" position="replace">
+         <field name="type" attrs="{'invisible': [('is_company','=', True)], 'required': [('is_company','!=', True)], 'readonly': [('user_ids', '!=', [])]}" class="fw-bold"/>
+            <b attrs="{'invisible': [('is_company', '=', False)]}">*Address</b>
+      </xpath>
+      <xpath expr="//field[@name='phone']" position="replace">
+         *<field name="phone" string="*Phone" widget="phone"/>
+      </xpath>
+    </field>
+  </record>
+  <!-- sale order settings by javaid.afridi34@gmail.com -->
+  <record id="view_sale_order_form_custom_rex" model="ir.ui.view">
+		<field name="name">sale.order.form.custom.rex</field>
+		<field name="model">sale.order</field>
+		<field name="inherit_id" ref="sale.view_order_form" />
+		<field name="arch" type="xml">
+			<xpath expr="//group[@name='note_group']" position="replace">
+				<group name="note_group" col="10" class="mt-2 mt-md-0">
+					<group colspan="4">
+						<field colspan="2" name="note" nolabel="1" placeholder="Terms and conditions..." />
+					</group>
+          <group  colspan="4" name="stc_total">
+            <field name="stc_value"  nolabel="0" colspan="1" readonly="1" force_save="1"/>
+            <field name="stc_quantity"  nolabel="0" colspan="1" readonly="0" />
+            <field name="currency_id"  nolabel="0"  readonly="0" invisible="1"/>
+            <field name="stc_rebate"  nolabel="0"  readonly="1" force_save="1" />
+            <field name="veec_value"  nolabel="0" colspan="1" readonly="1" force_save="1"/>
+            <field name="veec_quantity"  nolabel="0" colspan="1" readonly="0" />
+            <field name="currency_id"  nolabel="0" colspan="1" readonly="0" invisible="1"/>
+            <field name="veec_rebate" nolabel="0" colspan="1" readonly="1" force_save="1"/>
+            <field name="currency_id"  nolabel="0" colspan="1" readonly="0" invisible="1"/>
+            <field name="solar_victoria_rebate"  nolabel="0" colspan="1" readonly="0"/>
+				  </group>
+					<group class="oe_subtotal_footer oe_right" colspan="2" name="sale_total">
+						<field name="tax_totals" widget="account-tax-totals-field" nolabel="1" colspan="2" readonly="1" />
+					</group>
+					<div class="clearfix" />
+				</group>
+				<!-- <field name="stc_quantity"/> -->
+        <group name="stc_currencygroup" col="12" class="mt-2 mt-md-0">
+          <group colspan="1"></group>
+          <group   colspan="8" name="sale_total">
+            <group colspan="4">
+                <!-- <field name="stc_quantity"  nolabel="0" colspan="1" readonly="0" />
+                <field name="currency_id"  nolabel="0"  readonly="0" invisible="1"/>
+                <field name="stc_rebate"  nolabel="0"  readonly="0" />
+                <field name="veec_quantity"  nolabel="0" colspan="1" readonly="0" />
+                <field name="currency_id"  nolabel="0" colspan="1" readonly="0" invisible="1"/>
+                <field name="veec_rebate" nolabel="0" colspan="1" readonly="0"/>
+                <field name="currency_id"  nolabel="0" colspan="1" readonly="0" invisible="1"/>
+                <field name="solar_victoria_rebate"  nolabel="0" colspan="1" readonly="0"/> -->
+            </group>
+            <group colspan="3"></group>
+          </group>
+        </group>
+			</xpath>
+		</field>
+	</record>
+  <record id="view_order_tree_inherit" model="ir.ui.view">
+    <field name="name">sale.order.tree.inherit</field>
+    <field name="model">sale.order</field>
+    <field name="inherit_id" ref="sale.view_order_form"/>
+    <field name="arch" type="xml">
+        <xpath expr="//field[@name='order_line']/tree/field[@name='name']" position="after">
+            
+          <!-- <field name="name" class="oe_edit_only t-raw t-field-html" options="{'multiline': true}" t-raw="1"/> -->
+          <field name="clickable_link" help="Click here to view product" class="oe_edit_only"/>
+
+        </xpath>
+    </field>
+</record>
+
+  <record id="res_config_settings_inheit_view" model="ir.ui.view">
+       <field name="name">res.config.settings.inherit.view</field>
+       <field name="model">res.config.settings</field>
+       <!--        <field name="priority" eval="10"/>-->
+       <field name="inherit_id"
+              ref="sale.res_config_settings_view_form"/>
+       <field name="arch" type="xml">
+          <xpath expr="//div[@id='proforma_configuration']" position="after">
+            <div class="col-12 col-lg-6 o_setting_box" id="stc_value ">
+              <div class="o_setting_right_pane">
+                <field name="stc_value"/>
+              </div>
+              <div class="o_setting_right_pane">
+                <label for="stc_value" />
+                <div class="text-muted mb16">
+                    Set STC Value
+                </div>
+                      
+              </div>
+            </div>
+            <div class="col-12 col-lg-6 o_setting_box" id="veec_value ">
+              <div class="o_setting_right_pane">
+                <field name="veec_value"/>
+              </div>
+              <div class="o_setting_right_pane">
+                  <label for="veec_value" />
+                  <div class="text-muted mb16">
+                      Set VEEC Value
+                  </div>
+              </div>
+            </div>
+          </xpath>
+       </field>
+   </record>
+
+
+</odoo>

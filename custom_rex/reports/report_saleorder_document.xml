@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_saleorder_document_inherited_custome" inherit_id="sale.report_saleorder_document"> 
+        <xpath expr="//th[@name='th_description']" position="before">
+            <th name="th_link" class="text-start">Product</th>
+        </xpath>
+        <xpath expr="//th[@name='th_description']" position="after">
+            <th name="th_link" class="text-start">Link</th>
+        </xpath>
+        <!-- <xpath expr="//th[@name='th_description']" position="after">
+            <td name="clickable_link"><span t-raw="line.clickable_link"/></td>
+        </xpath>
+        
+        <xpath expr="//tbody[@class='sale_tbody']//td[@name='td_name']" position="before">
+            <td name="td_product"><span t-field="line.product_id.name"/></td>
+        </xpath>
+        <xpath expr="//t[@t-set='lines_to_report']" position="replace">
+            <t t-set="lines_to_report" t-value="doc._get_order_lines_to_report()"/>
+        </xpath> -->
+        
+        <xpath expr="//tbody[@class='sale_tbody']" position="replace">
+                <tbody class="sale_tbody">
+
+                    <t t-set="current_subtotal" t-value="0"/>
+
+                    <t t-foreach="lines_to_report" t-as="nw_line">
+
+                        <t t-set="current_subtotal" t-value="current_subtotal + nw_line.price_subtotal" groups="account.group_show_line_subtotals_tax_excluded"/>
+                        <t t-set="current_subtotal" t-value="current_subtotal + nw_line.price_total" groups="account.group_show_line_subtotals_tax_included"/>
+
+                        <tr t-att-class="'bg-200 fw-bold o_line_section' if nw_line.display_type == 'line_section' else 'fst-italic o_line_note' if nw_line.display_type == 'line_note' else ''">
+                            <t t-if="not nw_line.display_type">
+                                <td name="td_product"><span t-field="nw_line.product_id.name"/></td>
+                                <td name="td_name"><span t-field="nw_line.name"/></td>
+                                <td name="clickable_link"><span t-raw="nw_line.clickable_link"/></td>
+                                <td name="td_quantity" class="text-end">
+                                    <span t-field="nw_line.product_uom_qty"/>
+                                    <span t-field="nw_line.product_uom"/>
+                                </td>
+                                <td name="td_priceunit" class="text-end">
+                                    <span t-field="nw_line.price_unit"/>
+                                </td>
+                                <td t-if="display_discount" class="text-end" groups="product.group_discount_per_so_line">
+                                    <span t-field="nw_line.discount"/>
+                                </td>
+                                <td name="td_taxes" class="text-end">
+                                    <span t-out="', '.join(map(lambda x: (x.description or x.name), nw_line.tax_id))"/>
+                                </td>
+                                <td t-if="not nw_line.is_downpayment" name="td_subtotal" class="text-end o_price_total">
+                                    <span t-field="nw_line.price_subtotal" groups="account.group_show_line_subtotals_tax_excluded"/>
+                                    <span t-field="nw_line.price_total" groups="account.group_show_line_subtotals_tax_included"/>
+                                </td>
+                            </t>
+                            <t t-elif="nw_line.display_type == 'line_section'">
+                                <td name="td_section_line" colspan="99">
+                                    <span t-field="nw_line.name"/>
+                                </td>
+                                <t t-set="current_section" t-value="line"/>
+                                <t t-set="current_subtotal" t-value="0"/>
+                            </t>
+                            <t t-elif="nw_line.display_type == 'line_note'">
+                                <td name="td_note_line" colspan="99">
+                                    <span t-field="nw_line.name"/>
+                                </td>
+                            </t>
+                        </tr>
+
+                        <t t-if="current_section and (line_last or doc.order_line[line_index+1].display_type == 'line_section') and not nw_line.is_downpayment">
+                            <tr class="is-subtotal text-end">
+                                <td name="td_section_subtotal" colspan="99">
+                                    <strong class="mr16">Subtotal</strong>
+                                    <span
+                                        t-out="current_subtotal"
+                                        t-options='{"widget": "monetary", "display_currency": doc.pricelist_id.currency_id}'
+                                    />
+                                </td>
+                            </tr>
+                        </t>
+                    </t>
+                </tbody>
+
+        </xpath>
+        
+        <xpath expr="//div[@class='clearfix' and @name='so_total_summary']" position="replace">
+            <!-- Your custom content goes here -->
+            <!-- Example content: -->
+            <div class="clearfix" name="so_total_summary">
+                <div id="total" class="row" name="total">
+                    <div t-attf-class="#{'col-4' if report_type != 'html' else 'col-sm-5 col-md-4'} ">
+                        <table class="table table-sm">
+                            <tr>
+                                <th style="text-align: left;" name="th_description">STC Rebate</th>
+                                <td><span t-field="doc.stc_rebate"/></td>
+                            </tr>
+                            <tr>
+                                <th style="text-align: left;" name="th_description">VEEC Rebate</th>
+                                <td><span t-field="doc.veec_rebate"/></td>
+                            </tr>
+                            <tr>
+                                <th style="text-align: left;" name="th_description">Solar Victoria Rebate</th>
+                                <td><span t-field="doc.solar_victoria_rebate"/></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div t-attf-class="#{'col-2' if report_type != 'html' else 'col-sm-3 col-md-3'} "/>
+                    <div t-attf-class="#{'col-6' if report_type != 'html' else 'col-sm-7 col-md-6'} ">
+                        <table class="table table-sm">
+                            <!-- Tax totals -->
+                            <t t-set="tax_totals" t-value="doc.tax_totals"/>
+                            <t t-call="account.document_tax_totals"/>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+
+    </template>
+    <!-- <data>
+        <record id="report_saleorder_document_inherited_custome" model="ir.ui.view">
+            <field name="name">sale.order.custom_document</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.report_saleorder_document" />
+            <field name="arch" type="xml">
+                
+            </field>
+        </record>
+        
+    </data> -->
+</odoo>
